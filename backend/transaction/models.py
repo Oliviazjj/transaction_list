@@ -2,15 +2,21 @@ from django.db import models
 
 # Create your models here.
 
+QUALITY_CHOICES = {
+  (0, 1),
+  (1, 2),
+  (2, 3),
+  (3, 4),
+  (4, 5),
+};
+
 SPECIFICATION_CHOICES = (
-        ('SM', '平方米'),
-        ('CM', '立方米'),
-        ('UNKNOWN', '未知'),
+        (0, '平方米'),
+        (1, '立方米'),
+        (2, '未知'),
     )
 
 class ListItem(models.Model):
-	
-	
 	item_id = models.CharField(max_length=200)
 	name = models.CharField(max_length=200)
 	brand = models.CharField(max_length=200)
