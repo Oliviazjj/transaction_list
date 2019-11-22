@@ -5,14 +5,14 @@ from transaction.constants import *
 
 class ListItem(models.Model):
 	item_id = models.CharField(max_length=200)
-	name = models.CharField(max_length=200)
-	brand = models.CharField(max_length=200)
-	unit_price = models.DecimalField(..., max_digits=5, decimal_places=2)
-	total_price = models.DecimalField(..., max_digits=5, decimal_places=2)
-	specification = models.CharField(max_length=200)
-	quality = models.CharField(max_length=200)
-	vendor = models.CharField(null=True, max_length=200)
-	agent = models.CharField(null=True, max_length=200)
+	name = models.CharField(null=True, max_length=200)
+	brand = models.CharField(null=True, max_length=200)
+	unit_price = models.DecimalField(..., max_digits=5, decimal_places=2, null=True)
+	total_price = models.DecimalField(..., max_digits=5, decimal_places=2, null=True)
+	specification = models.CharField(max_length=200, null=True)
+	quality = models.CharField(max_length=200, null=True)
+	vendor = models.CharField(null=True, max_length=200, null=True)
+	agent = models.CharField(null=True, max_length=200, null=True)
 	receipt_bool = models.BooleanField()
 	created_date = models.DateField(null=True, blank=True)
 
