@@ -11,9 +11,9 @@ class ListItem(models.Model):
 	total_price = models.DecimalField(..., max_digits=5, decimal_places=2, null=True)
 	specification = models.CharField(max_length=200, null=True)
 	quality = models.CharField(max_length=200, null=True)
-	vendor = models.CharField(null=True, max_length=200, null=True)
-	agent = models.CharField(null=True, max_length=200, null=True)
-	receipt_bool = models.BooleanField()
+	vendor = models.CharField(null=True, max_length=200)
+	agent = models.CharField(null=True, max_length=200)
+	receipt_bool = models.BooleanField(blank=True)
 	created_date = models.DateField(null=True, blank=True)
 
 
