@@ -16,4 +16,5 @@ class ListItem(TestCase):
         def test_list_item_setup(self):
                 print("Method: test_list_item_setup.")
                 item1 = ListItemModel.objects.get(item_id='1234')
-                self.assertEqual(str(item1), "Item id:1234, name: name1, brand: brand1, unit_price: 12.00, total_price: 120.00, quantity: 10, specification: 立方米, quality: 3, vendor: vendor1, agent: agent1, receipt_bool:True, created_date: 2019-11-26")
+                current_date = str(datetime.date.today())
+                self.assertEqual(str(item1), "Item id:1234, name: name1, brand: brand1, unit_price: 12.00, total_price: 120.00, quantity: 10, specification: 立方米, quality: 3, vendor: vendor1, agent: agent1, receipt_bool:True, created_date: "+current_date)
