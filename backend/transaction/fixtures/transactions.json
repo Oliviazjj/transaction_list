@@ -1,0 +1,40 @@
+[
+    {
+        "model": "transaction.ListItem",
+        "pk": 1,
+        "fields": {
+            "item_id": "13e",
+            "name": "item1",
+            "brand": "brand1",
+            "unit_price": "12.00",
+            "total_price": "120.00",
+            "quantity": null,
+            "specification": "立方米",
+            "quality": "10",
+            "vendor": "vendor1",
+            "agent": "agent1",
+            "receipt_bool": true,
+            "created_date": "2019-11-03",
+            "updated_date": "2019-11-03"
+        }
+    },
+    {
+        "model": "transaction.ListItem",
+        "pk": 2,
+        "fields": {
+            "item_id": "2e",
+            "name": "item2",
+            "brand": "brand2",
+            "unit_price": "10.00",
+            "total_price": "100.00",
+            "quantity": null,
+            "specification": "立方米",
+            "quality": "10",
+            "vendor": "vendor2",
+            "agent": "agent2",
+            "receipt_bool": true,
+            "created_date": "2019-11-22",
+            "updated_date": "2019-11-22"
+        }
+    }
+]
