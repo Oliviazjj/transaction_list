@@ -24,7 +24,7 @@ const Styles = styled.div`
       ${'' /* These styles are required for a scrollable table body */}
       overflow-y: scroll;
       overflow-x: hidden;
-      height: 250px;
+      height: 500px;
     }
 
     .tr {
@@ -146,8 +146,12 @@ function Table({data}) {
   const columns = React.useMemo(
     () => [ 
           {
-            Header: 'Row Index',
+            Header: '序号',
             accessor: 'id',
+          },
+          {
+            Header: '产品ID',
+            accessor: 'item_id',
           },
           {
             Header: '品牌',
