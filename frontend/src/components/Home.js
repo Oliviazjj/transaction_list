@@ -5,6 +5,7 @@ import axios from "axios";
 
 import { API_URL } from "../constants";
 import Modal from "./Modal"
+import Table from "./Table"
 
 class Home extends Component {
   state = {
@@ -82,33 +83,9 @@ class Home extends Component {
   };
 
   renderItems = () => {
-        return this.state.transactions.map(item => (
-          <li
-            key={item.id}
-            className="list-group-item d-flex justify-content-between align-items-center"
-          >
-            <span
-              className={"todo-title mr-2"}
-            >
-              {item.name}
-            </span>
-            <span>
-              <button
-                onClick={() => this.editItem(item)}
-                className="btn btn-secondary mr-2"
-              >
-                {" "}
-                Edit{" "}
-              </button>
-              <button
-                onClick={() => this.handleDelete(item)}
-                className="btn btn-danger"
-              >
-                Delete{" "}
-              </button>
-            </span>
-          </li>
-        ));
+        return (
+          <Table data={this.state.transactions} />
+        );
       };
 
   render() {

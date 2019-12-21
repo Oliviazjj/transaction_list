@@ -18,3 +18,7 @@ export const receipt_selectOptions = {
   1: '无',
   2: '未知'
 };
+
+const table_listHeight = 600;
+const table_rowHeight = 50;
+const table_rowWidth = 800;
