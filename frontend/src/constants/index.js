@@ -19,6 +19,9 @@ export const receipt_selectOptions = {
   2: '未知'
 };
 
-const table_listHeight = 600;
-const table_rowHeight = 50;
-const table_rowWidth = 800;
+export const table_listHeight = 600;
+export const table_rowHeight = 50;
+export const table_rowWidth = 800;
+
+export const pageSizeOptions = [10, 20, 30, 40, 50, 100];
+

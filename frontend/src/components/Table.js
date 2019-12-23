@@ -1,8 +1,9 @@
 import React from "react";
 import styled from 'styled-components'
-import { useTable, useResizeColumns, useFlexLayout, useSortBy, useFilters, useGlobalFilter } from 'react-table'
+import { useTable, useResizeColumns, useFlexLayout, useSortBy, useFilters, useGlobalFilter, usePagination } from 'react-table'
 // A great library for fuzzy filtering/sorting items
 import matchSorter from 'match-sorter'
+import {pageSizeOptions} from "../constants"
 
 const Styles = styled.div`
   padding: 1rem;
@@ -67,6 +68,15 @@ const Styles = styled.div`
         &.isResizing {
           background: red;
         }
+      }
+
+      .pagination {
+        padding: 0.5rem;
+      }
+
+      .pagination_container {
+        margin-top: 20px;
+        width: flex;
       }
     }
   }
@@ -279,6 +289,22 @@ function ReactTable({ columns, data }) {
     []
   )
 
+  // Use the useTable hook to create your table configuration
+  const instance = useTable(
+    {
+      columns,
+      data,
+      defaultColumn,
+      filterTypes,
+    },
+    useResizeColumns,
+    useFlexLayout,
+    useFilters, 
+    useGlobalFilter,
+    useSortBy,
+    usePagination
+  )
+
   // Use the state and functions returned from useTable to build your UI
   const {
     getTableProps,
@@ -291,22 +317,22 @@ function ReactTable({ columns, data }) {
     flatColumns,
     preGlobalFilteredRows,
     setGlobalFilter,
+    pageOptions,
+    pageCount,
+    page,
+    gotoPage,
+    previousPage,
+    nextPage,
+    canPreviousPage,
+    canNextPage,
+    setPageSize,
+    state: { pageIndex, pageSize },
 
-  } = useTable(
-    {
-      columns,
-      data,
-      defaultColumn,
-      filterTypes,
-    },
-    useResizeColumns,
-    useFlexLayout,
-    useFilters, 
-    useGlobalFilter,
-    useSortBy,
-  )
+
+  } = instance
 
   return (
+  <div>
     <div {...getTableProps()} className="table">
       <div>
         {headerGroups.map(headerGroup => (
@@ -315,8 +341,8 @@ function ReactTable({ columns, data }) {
               <div {...column.getHeaderProps(column.getSortByToggleProps())} className="th">
                 {column.render('Header')}
                 <span>
-+                 {column.isSorted ? (column.isSortedDesc ? ' 🔽' : ' 🔼') : ''}
-+               </span>
+                  {column.isSorted ? (column.isSortedDesc ? ' 🔽' : ' 🔼') : ''}
+                </span>
                 {/* Use column.getResizerProps to hook up the events correctly */}
                 <div
                   {...column.getResizerProps()}
@@ -356,6 +382,51 @@ function ReactTable({ columns, data }) {
         })}
       </div>
     </div>
+    <div className="pagination_container">
+      <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+        {'<<'}
+      </button>{' '}
+      <button onClick={() => previousPage()} disabled={!canPreviousPage}>
+        {'<'}
+      </button>{' '}
+      <button onClick={() => nextPage()} disabled={!canNextPage}>
+          Next Page
+      </button>
+      <div>
+        Page{' '}
+        <em>
+          {pageIndex + 1} of {pageOptions.length}
+        </em>
+      </div>
+      <div>Go to page:</div>
+      <input
+        type="number"
+        defaultValue={pageIndex + 1 || 1}
+        onChange={e => {
+          const page = e.target.value ? Number(e.target.value) - 1 : 0
+          gotoPage(page)
+        }}
+      />
+      <button onClick={() => nextPage()} disabled={!canNextPage}>
+        {'>'}
+      </button>{' '}
+      <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
+        {'>>'}
+      </button>{' '}
+      <select
+        value={pageSize}
+        onChange={e => {
+          setPageSize(Number(e.target.value))
+       }}
+      >
+        {pageSizeOptions.map(pageSize => (
+          <option key={pageSize} value={pageSize}>
+            Show {pageSize}
+          </option>
+        ))}
+      </select>
+    </div>
+  </div>
   )
 }
 
