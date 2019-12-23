@@ -369,12 +369,28 @@ function ReactTable({ columns, data }) {
     canNextPage,
     setPageSize,
     state: { pageIndex, pageSize, selectedRowIds, },
+    getToggleHideAllColumnsProps
 
 
   } = instance
 
   return (
   <div>
+    <div>
+      <div>
+        <IndeterminateCheckbox {...getToggleHideAllColumnsProps()} /> Toggle
+        All
+      </div>
+      {flatColumns.map(column => (
+        <div key={column.id}>
+          <label>
+            <input type="checkbox" {...column.getToggleHiddenProps()} />{' '}
+            {column.id}
+          </label>
+        </div>
+      ))}
+      <br />
+    </div>
     <div {...getTableProps()} className="table">
       <div>
         {headerGroups.map(headerGroup => (
@@ -580,12 +596,12 @@ function Table({data}) {
             sortBy: 'date'
           },{
             Header: 'Edit',
-            accessor: '[row identifier to be passed to button]',
+            accessor: 'edit',
             Cell: (row) => (<button onClick={(row) => alert("edit data is "+row.id)} >Edit</button>)
           },
           {
             Header: 'Delete',
-            accessor: '[row identifier to be passed to button]',
+            accessor: 'delete',
             Cell: (rows) => (<button>Delete</button>)
           },
         ],
