@@ -273,7 +273,13 @@ fuzzyTextFilterFn.autoRemove = val => !val
 
 
 
-function ReactTable({ columns, data }) {
+function ReactTable({ 
+  columns, 
+  data,
+  fetchData,
+  loading,
+  pageCount: controlledPageCount,
+}) {
 
   const filterTypes = React.useMemo(
     () => ({
@@ -313,6 +319,13 @@ function ReactTable({ columns, data }) {
       data,
       defaultColumn,
       filterTypes,
+      initialState: { pageIndex: 0 }, // Pass our hoisted table state
+      manualPagination: true, // Tell the usePagination
+      // hook that we'll handle our own data fetching
+      // This means we'll also have to provide our own
+      // pageCount.
+      pageCount: controlledPageCount,
+
     },
     useResizeColumns,
     useFlexLayout,
@@ -351,7 +364,6 @@ function ReactTable({ columns, data }) {
     getTableProps,
     getTableBodyProps,
     headerGroups,
-    rows,
     prepareRow,
     selectedFlatRows,
     state,
@@ -370,9 +382,13 @@ function ReactTable({ columns, data }) {
     setPageSize,
     state: { pageIndex, pageSize, selectedRowIds, },
     getToggleHideAllColumnsProps
-
-
   } = instance
+
+  // Listen for changes in pagination and use the state to fetch our new data
+  React.useEffect(() => {
+    fetchData({ pageIndex, pageSize })
+  }, [fetchData, pageIndex, pageSize])
+
 
   return (
   <div>
@@ -424,7 +440,7 @@ function ReactTable({ columns, data }) {
       </div>
 
       <div {...getTableBodyProps()} className="tbody">
-        {rows.map((row, i) => {
+        {page.map((row, i) => {
           prepareRow(row)
           return (
             <div {...row.getRowProps()} className="tr">
@@ -438,6 +454,17 @@ function ReactTable({ columns, data }) {
             </div>
           )
         })}
+        <tr>
+          {loading ? (
+            // Use our custom loading state to show a loading indicator
+            <td colSpan="10000">Loading...</td>
+          ) : (
+            <td colSpan="10000">
+              Showing {page.length} of ~{controlledPageCount * pageSize}{' '}
+              results
+            </td>
+          )}
+        </tr>
       </div>
     </div>
     <div className="pagination_container">
@@ -521,7 +548,7 @@ function filterGreaterThan(rows, id, filterValue) {
 filterGreaterThan.autoRemove = val => typeof val !== 'number'
 
 
-function Table({data}) {
+function Table({transactions}) {
 
   const columns = React.useMemo(
     () => [ 
@@ -607,12 +634,49 @@ function Table({data}) {
         ],
       []
   )
+
+  // We'll start our table without any data
+  const [data, setData] = React.useState([])
+  const [loading, setLoading] = React.useState(false)
+  const [pageCount, setPageCount] = React.useState(0)
+  const fetchIdRef = React.useRef(0)
+
+  const fetchData = React.useCallback(({ pageSize, pageIndex }) => {
+    // This will get called when the table needs new data
+    // You could fetch your data from literally anywhere,
+    // even a server. But for this example, we'll just fake it.
+
+    // Give this fetch an ID
+    const fetchId = ++fetchIdRef.current
+
+    // Set the loading state
+    setLoading(true)
+
+    // We'll even set a delay to simulate a server here
+    setTimeout(() => {
+      // Only update the data if this is the latest fetch
+      if (fetchId === fetchIdRef.current) {
+        const startRow = pageSize * pageIndex
+        const endRow = startRow + pageSize
+        setData(transactions.slice(startRow, endRow))
+
+        // Your server could send back total page count.
+        // For now we'll just fake it, too
+        setPageCount(Math.ceil(transactions.length / pageSize))
+
+        setLoading(false)
+      }
+    }, 1000)
+  }, [transactions])
   
   return (
     <Styles>
           <ReactTable
             data={data}
             columns={columns} 
+            fetchData={fetchData}
+            loading={loading}
+            pageCount={pageCount}
           />
     </Styles>
   )
