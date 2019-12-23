@@ -17,19 +17,6 @@ const Styles = styled.div`
     border-spacing: 0;
     border: 1px solid black;
 
-    .thead {
-      ${'' /* These styles are required for a scrollable body to align with the header properly */}
-      overflow-y: auto;
-      overflow-x: hidden;
-    }
-
-    .tbody {
-      ${'' /* These styles are required for a scrollable table body */}
-      overflow-y: scroll;
-      overflow-x: hidden;
-      height: 500px;
-    }
-
     .tr {
       :last-child {
         .td {
@@ -44,10 +31,6 @@ const Styles = styled.div`
       padding: 0.5rem;
       border-bottom: 1px solid black;
       border-right: 1px solid black;
-
-      ${'' /* In this example we use an absolutely position resizer,
-       so this is required. */}
-      position: relative;
 
       :last-child {
         border-right: 0;
@@ -76,11 +59,7 @@ const Styles = styled.div`
 
       .pagination_container {
         margin-top: 20px;
-        display: flex;
-      }
-
-      .table_display {
-        display: flex;
+        display: inline-flex;
       }
     }
   }
@@ -410,6 +389,15 @@ function ReactTable({
       ))}
       <br />
     </div>
+    <div style={{ border: "1px solid black",}} className="tr">
+      <div colSpan={flatColumns.length} style={{ textAlign: 'left',}} className="th">
+        <GlobalFilter
+          preGlobalFilteredRows={preGlobalFilteredRows}
+          globalFilter={globalFilter}
+          setGlobalFilter={setGlobalFilter}
+        />
+      </div>
+    </div>
     <div {...getTableProps()} className="table">
       <div>
         {headerGroups.map(headerGroup => (
@@ -431,15 +419,6 @@ function ReactTable({
             ))}
           </div>
         ))}
-        <div className="tr">
-          <div colSpan={flatColumns.length} style={{ textAlign: 'left',}} className="th">
-            <GlobalFilter
-              preGlobalFilteredRows={preGlobalFilteredRows}
-              globalFilter={globalFilter}
-              setGlobalFilter={setGlobalFilter}
-            />
-          </div>
-        </div>
       </div>
 
       <div {...getTableBodyProps()} className="tbody">
