@@ -1,6 +1,6 @@
 import React from "react";
 import styled from 'styled-components'
-import { useTable, useResizeColumns, useFlexLayout, useSortBy, useFilters, useGlobalFilter, usePagination } from 'react-table'
+import { useTable, useResizeColumns, useFlexLayout, useSortBy, useFilters, useGlobalFilter, usePagination, useRowSelect } from 'react-table'
 // A great library for fuzzy filtering/sorting items
 import matchSorter from 'match-sorter'
 import {pageSizeOptions} from "../constants"
@@ -81,6 +81,23 @@ const Styles = styled.div`
     }
   }
 `
+
+const IndeterminateCheckbox = React.forwardRef(
+  ({ indeterminate, ...rest }, ref) => {
+    const defaultRef = React.useRef()
+    const resolvedRef = ref || defaultRef
+
+    React.useEffect(() => {
+      resolvedRef.current.indeterminate = indeterminate
+    }, [resolvedRef, indeterminate])
+
+    return (
+      <>
+        <input type="checkbox" ref={resolvedRef} {...rest} />
+      </>
+    )
+  }
+)
 
 // Define a default UI for filtering
 function GlobalFilter({
@@ -302,7 +319,31 @@ function ReactTable({ columns, data }) {
     useFilters, 
     useGlobalFilter,
     useSortBy,
-    usePagination
+    usePagination,
+    useRowSelect,
+    hooks => {
+      hooks.flatColumns.push(columns => [
+        // Let's make a column for selection
+        {
+          id: 'selection',
+          // The header can use the table's getToggleAllRowsSelectedProps method
+          // to render a checkbox
+          Header: ({ getToggleAllRowsSelectedProps }) => (
+            <div>
+              <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
+            </div>
+          ),
+          // The cell can use the individual row's getToggleRowSelectedProps method
+          // to the render a checkbox
+          Cell: ({ row }) => (
+            <div>
+              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
+            </div>
+          ),
+        },
+        ...columns,
+      ])
+    }
   )
 
   // Use the state and functions returned from useTable to build your UI
@@ -312,6 +353,7 @@ function ReactTable({ columns, data }) {
     headerGroups,
     rows,
     prepareRow,
+    selectedFlatRows,
     state,
     totalColumnsWidth,
     flatColumns,
@@ -326,7 +368,7 @@ function ReactTable({ columns, data }) {
     canPreviousPage,
     canNextPage,
     setPageSize,
-    state: { pageIndex, pageSize },
+    state: { pageIndex, pageSize, selectedRowIds, },
 
 
   } = instance
@@ -426,6 +468,23 @@ function ReactTable({ columns, data }) {
         ))}
       </select>
     </div>
+    <div>
+      <p>Selected Rows: {Object.keys(selectedRowIds).length}</p>
+        <pre>
+          <code>
+            {JSON.stringify(
+              {
+                selectedRowIds: selectedRowIds,
+                'selectedFlatRows[].original': selectedFlatRows.map(
+                  d => d.original
+                ),
+              },
+              null,
+              2
+            )}
+          </code>
+        </pre>
+      </div>
   </div>
   )
 }
