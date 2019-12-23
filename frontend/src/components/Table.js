@@ -76,7 +76,11 @@ const Styles = styled.div`
 
       .pagination_container {
         margin-top: 20px;
-        width: flex;
+        display: flex;
+      }
+
+      .table_display {
+        display: flex;
       }
     }
   }
@@ -366,7 +370,6 @@ function ReactTable({
     headerGroups,
     prepareRow,
     selectedFlatRows,
-    state,
     totalColumnsWidth,
     flatColumns,
     preGlobalFilteredRows,
@@ -379,9 +382,9 @@ function ReactTable({
     nextPage,
     canPreviousPage,
     canNextPage,
-    setPageSize,
-    state: { pageIndex, pageSize, selectedRowIds, },
-    getToggleHideAllColumnsProps
+    setPageSize, 
+    getToggleHideAllColumnsProps,
+    state: { pageIndex, pageSize, selectedRowIds, filters, globalFilter},
   } = instance
 
   // Listen for changes in pagination and use the state to fetch our new data
@@ -432,7 +435,7 @@ function ReactTable({
           <div colSpan={flatColumns.length} style={{ textAlign: 'left',}} className="th">
             <GlobalFilter
               preGlobalFilteredRows={preGlobalFilteredRows}
-              globalFilter={state.globalFilter}
+              globalFilter={globalFilter}
               setGlobalFilter={setGlobalFilter}
             />
           </div>
