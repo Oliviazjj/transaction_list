@@ -576,8 +576,8 @@ function Table({transactions}) {
             Header: '单价',
             accessor: 'unit_price',
             sortType: 'basic',
-            Filter: SliderColumnFilter,
-            filter: filterGreaterThan,
+            Filter: NumberRangeColumnFilter,
+            filter: 'between',
           },{
             Header: '总价',
             accessor: 'total_price',
