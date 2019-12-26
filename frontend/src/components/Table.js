@@ -601,14 +601,16 @@ function Table() {
           },{
             Header: '创建时间',
             accessor: 'created_date',
-            sortType: 'date'
+            sortType: 'basic'
           },{
             Header: '更新时间',
             accessor: 'updated_date',
-            sortBy: 'date'
+            sortType: 'basic'
           },{
             Header: '控制',
             accessor: 'controls',
+            disableFilters: true,
+            disableSortBy: true,
             Cell: (cell) => (
               <div style={{display: 'inline-block'}}>
                 <button onClick={() => {
