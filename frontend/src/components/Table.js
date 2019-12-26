@@ -498,21 +498,21 @@ function ReactTable({
     </div>
     <div>
       <p>Selected Rows: {Object.keys(selectedRowIds).length}</p>
-        <pre>
-          <code>
-            {JSON.stringify(
-              {
-                selectedRowIds: selectedRowIds,
-                'selectedFlatRows[].original': selectedFlatRows.map(
-                  d => d.original
-                ),
-              },
-              null,
-              2
-            )}
-          </code>
-        </pre>
-      </div>
+      <pre>
+        <code>
+          {JSON.stringify(
+            {
+              selectedRowIds: selectedRowIds,
+              'selectedFlatRows[].original': selectedFlatRows.map(
+                d => d.original
+              ),
+            },
+            null,
+            2
+          )}
+        </code>
+      </pre>
+    </div>
   </div>
   )
 }
@@ -531,14 +531,6 @@ function filterGreaterThan(rows, id, filterValue) {
 // check, but here, we want to remove the filter if it's not a number
 
 filterGreaterThan.autoRemove = val => typeof val !== 'number'
-
-// function handleDelete(item, state) {
-//   console.log("handleDelete")
-//     // console.log("item.id: "+item.id+" pageSize: ${state.pageSize}, pageIndex: {state.pageIndex}")
-//     // axios
-//     //   .delete(`${API_URL}${item.id}`)
-//     //   .then(res => fetchData(pageSize, pageIndex));
-//   }; 
 
 
 function Table() {
@@ -619,7 +611,12 @@ function Table() {
             accessor: 'controls',
             Cell: (cell) => (
               <div style={{display: 'inline-block'}}>
-                <button onClick={()=>{}}>Edit</button>
+                <button onClick={() => {
+                  console.log("in editItem")
+                  const item = cell.row.original
+                  setActiveItem(item);
+                  setModal(true);
+                }}>Edit</button>
                 <button onClick={() => {
                   axios
                   .delete(`${API_URL}${cell.row.original.id}`)
@@ -637,12 +634,64 @@ function Table() {
       []
   )
 
+  const newItem = {
+        item_id: "",
+        name: "",
+        brand: "",
+        unit_price: 0,
+        total_price: 0,
+        quantity: 0,
+        specification: "",
+        quality: "",
+        vendor: "",
+        agent: "",
+        receipt_bool: ""
+      }
+
   // We'll start our table without any data
   const [data, setData] = React.useState([])
   const [loading, setLoading] = React.useState(false)
   const [pageCount, setPageCount] = React.useState(0)
-  const fetchIdRef = React.useRef(0)
+  const [activeItem, setActiveItem] = React.useState(newItem)
+  const [modal, setModal] = React.useState(false)
   const [tableState, setTableState] = React.useState("none")
+  const fetchIdRef = React.useRef(0)
+
+  function createItem () {
+    console.log(" in createItem, modal is "+modal)
+    setActiveItem(newItem);
+    setModal(true);
+    console.log(" after in createItem, modal is "+modal)
+  }
+
+  function editItem(item) {
+    console.log("in editItem")
+    setActiveItem(item);
+    setModal(true);
+  }
+
+  function handleSubmit(item) {
+    console.log("in handlesubmit");
+    setModal(false);
+    console.log("item is ", JSON.stringify(item));
+    console.log("item id is ", item.id);
+    if (item.id) {
+      axios
+        .put(`${API_URL}${item.id}/`, item)
+        .then(res => setTableState('submit'))
+        .catch(err => console.log(err));
+      return;
+    }
+    console.log("item not exits, update");
+    axios
+      .post(API_URL, item)
+      .then(res => setTableState('submit'))
+      .catch(err => console.log(err));
+  }
+
+
+
+
 
 
   const fetchData = React.useCallback(({ pageSize, pageIndex }) => {
@@ -675,17 +724,35 @@ function Table() {
       }    
     }, 1000)
   }, [])
+
+  const toggle = () => {
+    setModal(!modal) 
+  }
   
   return (
     <Styles>
-          <ReactTable
-            data={data}
-            columns={columns} 
-            fetchData={fetchData}
-            loading={loading}
-            pageCount={pageCount}
-            tableState={tableState}
-          />
+      <div className="row top_control">
+        <button className="btn btn-primary" onClick={createItem}> 
+          Add transction
+        </button>
+      </div>
+      <ReactTable
+        data={data}
+        columns={columns} 
+        fetchData={fetchData}
+        loading={loading}
+        pageCount={pageCount}
+        tableState={tableState}
+      />
+      <div>
+        {modal ? 
+          (<Modal
+            activeItem={activeItem}
+            toggle={toggle}
+            onSave={handleSubmit}
+          />) : (null)
+        }
+      </div>
     </Styles>
   )
 }
