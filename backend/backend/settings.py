@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'transaction',
     'corsheaders',            
-    'rest_framework'      
+    'rest_framework',     
+    'knox',  
+    'accounts.apps.AccountsConfig', 
 ]
 
 MIDDLEWARE = [
@@ -82,6 +84,12 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (  # added
+        'knox.auth.TokenAuthentication',
+    ),
 }
 
 
