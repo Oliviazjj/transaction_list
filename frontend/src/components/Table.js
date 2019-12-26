@@ -3,7 +3,9 @@ import styled from 'styled-components'
 import { useTable, useResizeColumns, useFlexLayout, useSortBy, useFilters, useGlobalFilter, usePagination, useRowSelect } from 'react-table'
 // A great library for fuzzy filtering/sorting items
 import matchSorter from 'match-sorter'
-import axios from "axios";
+import axios from "axios"
+import { CSVLink, CSVDownload } from "react-csv"
+
 import {pageSizeOptions, API_URL} from "../constants"
 import Modal from "./Modal"
 
@@ -735,8 +737,9 @@ function Table() {
     <Styles>
       <div className="row top_control">
         <button className="btn btn-primary" onClick={createItem}> 
-          Add transction
+          添加
         </button>
+        <CSVLink data={data} >下载</CSVLink>
       </div>
       <ReactTable
         data={data}
