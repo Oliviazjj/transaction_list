@@ -84,7 +84,7 @@ class Home extends Component {
 
   renderItems = () => {
         return (
-          <Table transactions={this.state.transactions} />
+          <Table />
         );
       };
 

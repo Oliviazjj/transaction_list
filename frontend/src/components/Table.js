@@ -3,7 +3,9 @@ import styled from 'styled-components'
 import { useTable, useResizeColumns, useFlexLayout, useSortBy, useFilters, useGlobalFilter, usePagination, useRowSelect } from 'react-table'
 // A great library for fuzzy filtering/sorting items
 import matchSorter from 'match-sorter'
-import {pageSizeOptions} from "../constants"
+import axios from "axios";
+import {pageSizeOptions, API_URL} from "../constants"
+import Modal from "./Modal"
 
 const Styles = styled.div`
   padding: 1rem;
@@ -262,6 +264,7 @@ function ReactTable({
   fetchData,
   loading,
   pageCount: controlledPageCount,
+  tableState,
 }) {
 
   const filterTypes = React.useMemo(
@@ -363,13 +366,13 @@ function ReactTable({
     canNextPage,
     setPageSize, 
     getToggleHideAllColumnsProps,
-    state: { pageIndex, pageSize, selectedRowIds, filters, globalFilter},
+    state: { pageIndex, pageSize, selectedRowIds, globalFilter},
   } = instance
 
   // Listen for changes in pagination and use the state to fetch our new data
   React.useEffect(() => {
     fetchData({ pageIndex, pageSize })
-  }, [fetchData, pageIndex, pageSize])
+  }, [fetchData, pageIndex, pageSize, tableState])
 
 
   return (
@@ -529,8 +532,16 @@ function filterGreaterThan(rows, id, filterValue) {
 
 filterGreaterThan.autoRemove = val => typeof val !== 'number'
 
+// function handleDelete(item, state) {
+//   console.log("handleDelete")
+//     // console.log("item.id: "+item.id+" pageSize: ${state.pageSize}, pageIndex: {state.pageIndex}")
+//     // axios
+//     //   .delete(`${API_URL}${item.id}`)
+//     //   .then(res => fetchData(pageSize, pageIndex));
+//   }; 
 
-function Table({transactions}) {
+
+function Table() {
 
   const columns = React.useMemo(
     () => [ 
@@ -604,14 +615,23 @@ function Table({transactions}) {
             accessor: 'updated_date',
             sortBy: 'date'
           },{
-            Header: 'Edit',
-            accessor: 'edit',
-            Cell: (row) => (<button onClick={(row) => alert("edit data is "+row.id)} >Edit</button>)
-          },
-          {
-            Header: 'Delete',
-            accessor: 'delete',
-            Cell: (rows) => (<button>Delete</button>)
+            Header: '控制',
+            accessor: 'controls',
+            Cell: (cell) => (
+              <div style={{display: 'inline-block'}}>
+                <button onClick={()=>{}}>Edit</button>
+                <button onClick={() => {
+                  axios
+                  .delete(`${API_URL}${cell.row.original.id}`)
+                  .then(res => {
+                    let items = data.filter(item => cell.row.original.id != item.row.original.id);
+                    setData(items);
+                    setTableState('delete')
+                  })
+                  .catch(err => console.log(err));
+                }}>Delete</button>
+              </div>
+            )
           },
         ],
       []
@@ -622,8 +642,12 @@ function Table({transactions}) {
   const [loading, setLoading] = React.useState(false)
   const [pageCount, setPageCount] = React.useState(0)
   const fetchIdRef = React.useRef(0)
+  const [tableState, setTableState] = React.useState("none")
+
 
   const fetchData = React.useCallback(({ pageSize, pageIndex }) => {
+
+    console.log("fetch data")
     // This will get called when the table needs new data
     // You could fetch your data from literally anywhere,
     // even a server. But for this example, we'll just fake it.
@@ -634,22 +658,23 @@ function Table({transactions}) {
     // Set the loading state
     setLoading(true)
 
-    // We'll even set a delay to simulate a server here
     setTimeout(() => {
-      // Only update the data if this is the latest fetch
+          // Only update the data if this is the latest fetch
       if (fetchId === fetchIdRef.current) {
         const startRow = pageSize * pageIndex
         const endRow = startRow + pageSize
-        setData(transactions.slice(startRow, endRow))
-
-        // Your server could send back total page count.
-        // For now we'll just fake it, too
-        setPageCount(Math.ceil(transactions.length / pageSize))
-
-        setLoading(false)
-      }
+        axios
+          .get(API_URL)
+          .then(res => {
+            setData(res.data.slice(startRow, endRow))
+            setPageCount(Math.ceil(res.data.length / pageSize))
+            setLoading(false)
+            setTableState('none')
+          })
+          .catch(err => console.log(err));       
+      }    
     }, 1000)
-  }, [transactions])
+  }, [])
   
   return (
     <Styles>
@@ -659,6 +684,7 @@ function Table({transactions}) {
             fetchData={fetchData}
             loading={loading}
             pageCount={pageCount}
+            tableState={tableState}
           />
     </Styles>
   )
