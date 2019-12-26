@@ -28,3 +28,11 @@ code {
   margin-top: 20px;
   text-align: center;
 }
+
+.pagination_container {
+	display: inline-block;
+}
+
+.column-toggle-container {
+	display: inline-flex;
+}

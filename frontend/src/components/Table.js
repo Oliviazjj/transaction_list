@@ -379,17 +379,15 @@ function ReactTable({
 
   return (
   <div>
-    <div>
-      <div>
-        <IndeterminateCheckbox {...getToggleHideAllColumnsProps()} /> Toggle
-        All
-      </div>
+    <div className="column-toggle-container"> 
+      <div><IndeterminateCheckbox {...getToggleHideAllColumnsProps()} /> 切换全部 </div>
       {flatColumns.map(column => (
         <div key={column.id}>
-          <label>
+          {
+            (column.id !== 'selection')? (<label>
             <input type="checkbox" {...column.getToggleHiddenProps()} />{' '}
-            {column.id}
-          </label>
+            {column.Header}
+          </label>) : (null)}
         </div>
       ))}
       <br />
@@ -454,37 +452,42 @@ function ReactTable({
         </tr>
       </div>
     </div>
-    <div className="pagination_container">
-      <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
-        {'<<'}
-      </button>{' '}
-      <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-        {'<'}
-      </button>{' '}
-      <button onClick={() => nextPage()} disabled={!canNextPage}>
-          Next Page
-      </button>
-      <div>
-        Page{' '}
-        <em>
-          {pageIndex + 1} of {pageOptions.length}
-        </em>
+    <div className="pagination_container row">
+      <div className="col-md-3">
+        <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+          {'<<'}
+        </button>{' '}
+        <button onClick={() => previousPage()} disabled={!canPreviousPage}>
+          {'<'}
+        </button>{' '}
       </div>
-      <div>Go to page:</div>
-      <input
-        type="number"
-        defaultValue={pageIndex + 1 || 1}
-        onChange={e => {
-          const page = e.target.value ? Number(e.target.value) - 1 : 0
-          gotoPage(page)
-        }}
-      />
-      <button onClick={() => nextPage()} disabled={!canNextPage}>
-        {'>'}
-      </button>{' '}
-      <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
-        {'>>'}
-      </button>{' '}
+      <div className="col-md-6">
+        <div>
+          第{' '}
+          <em>
+            {pageIndex + 1} / {pageOptions.length} 页
+          </em>
+        </div>
+        <div>跳到</div>
+        <input
+          type="number"
+          defaultValue={pageIndex + 1 || 1}
+          onChange={e => {
+            const page = e.target.value ? Number(e.target.value) - 1 : 0
+            gotoPage(page)
+          }}
+        />
+      </div>
+      <div className="col-md-3">
+        <button onClick={() => nextPage()} disabled={!canNextPage}>
+          {'>'}
+        </button>{' '}
+        <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
+          {'>>'}
+        </button>{' '}
+      </div>
+    </div>
+    <div className="row">
       <select
         value={pageSize}
         onChange={e => {
@@ -493,27 +496,10 @@ function ReactTable({
       >
         {pageSizeOptions.map(pageSize => (
           <option key={pageSize} value={pageSize}>
-            Show {pageSize}
+            显示 {pageSize} 每页
           </option>
         ))}
       </select>
-    </div>
-    <div>
-      <p>Selected Rows: {Object.keys(selectedRowIds).length}</p>
-      <pre>
-        <code>
-          {JSON.stringify(
-            {
-              selectedRowIds: selectedRowIds,
-              'selectedFlatRows[].original': selectedFlatRows.map(
-                d => d.original
-              ),
-            },
-            null,
-            2
-          )}
-        </code>
-      </pre>
     </div>
   </div>
   )
@@ -625,7 +611,7 @@ function Table() {
                   axios
                   .delete(`${API_URL}${cell.row.original.id}`)
                   .then(res => {
-                    let items = data.filter(item => cell.row.original.id != item.row.original.id);
+                    let items = data.filter(item => cell.row.original.id !== item.row.original.id);
                     setData(items);
                     setTableState('delete')
                   })
@@ -739,7 +725,7 @@ function Table() {
         <button className="btn btn-primary" onClick={createItem}> 
           添加
         </button>
-        <CSVLink data={data} >下载</CSVLink>
+        <button><CSVLink data={data} >下载</CSVLink></button>
       </div>
       <ReactTable
         data={data}
