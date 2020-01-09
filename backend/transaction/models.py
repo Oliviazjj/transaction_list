@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -15,8 +16,10 @@ class ListItem(models.Model):
 	vendor = models.CharField(null=True, max_length=200, blank=True)
 	agent = models.CharField(null=True, max_length=200, blank=True)
 	receipt_bool = models.BooleanField(null=True, max_length=200, blank=True)
-	created_date = models.DateField(null=True, blank=True)
-	updated_date = models.DateField(null=True, blank=True)
+	created_date = models.DateField(null=True, blank=True, auto_now_add=True)
+	updated_date = models.DateField(null=True, blank=True, auto_now_add=True)
+	owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="transactions", null=True)
+
 
 
 	def __str__(self):

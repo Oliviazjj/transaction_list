@@ -23,5 +23,6 @@ router.register(r'transactions', views.TransactionView, 'transaction')
 
 urlpatterns = [
     path('admin/', admin.site.urls),         
-    path('api/', include(router.urls))               
+    path('api/', include(router.urls)),
+    path('api/auth/', include('accounts.urls')),                                
 ]
