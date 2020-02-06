@@ -20,8 +20,6 @@ class ListItem(models.Model):
 	updated_date = models.DateField(null=True, blank=True, auto_now_add=True)
 	owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="transactions", null=True)
 
-
-
 	def __str__(self):
 		"""A string representation of the model."""
 		return 'Item id:{}, name: {}, brand: {}, unit_price: {}, total_price: {}, quantity: {}, specification: {}, quality: {}, vendor: {}, agent: {}, receipt_bool:{}, created_date: {}, updated_date: {}'.format(self.item_id, self.name, self.brand, self.unit_price, self.total_price, self.quantity, self.specification, self.quality, self.vendor, self.agent, self.receipt_bool, self.created_date, self.updated_date)

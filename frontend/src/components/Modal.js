@@ -15,7 +15,7 @@
 
     import {quality_selectOptions, specification_selectOptions, receipt_selectOptions} from "../constants";
 
-    export default class CustomModal extends Component {
+    export default class AddTransactionModal extends Component {
       constructor(props) {
         super(props);
         this.state = {
