@@ -8,6 +8,12 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import filterFactory, { textFilter, selectFilter } from 'react-bootstrap-table2-filter';
 import {specification_selectOptions, receipt_selectOptions, quality_selectOptions } from "../../constants"
 import { TiEdit, TiDelete } from "react-icons/ti";
+import ToolkitProvider, { Search, CSVExport, ColumnToggle } from 'react-bootstrap-table2-toolkit';
+import { Confirm } from 'semantic-ui-react'
+
+const { SearchBar, ClearSearchButton } = Search;
+const { ExportCSVButton } = CSVExport;
+const { ToggleList } = ColumnToggle;
 
 const newItem = {
   item_id: "",
@@ -24,6 +30,22 @@ const newItem = {
   created_date: ""
 }
 
+class ConfirmDialog extends React.Component {
+  callback(action){
+  	this.props.callback(action);
+  }
+  
+  render(){
+    return(
+      <div className='dialog'>
+        <div>{this.props.message}}</div>
+        <button onClick={() => this.callback('yes')}>Yes</button>
+        <button onClick={() => this.callback('no')}>No</button>
+      </div>
+    )
+  }
+}
+
 export class Transactions extends Component {
 
   static propTypes = {
@@ -38,41 +60,48 @@ export class Transactions extends Component {
     this.state = {
       activeItem: newItem,
       modal: false,
+      selected: [],
+      showDialog: false,
+      type: ''
     };
-    this.handleSubmit = this.handleSubmit.bind(this)
-    this.createItem = this.createItem.bind(this)
-    this.toggle = this.toggle.bind(this)
   }
 
   componentDidMount() {
     this.props.getTransactions();
   }
 
-  toggle() {
+  toggle = () => {
     this.setState(prevState => ({
       modal: !prevState.modal
     }));
   }
 
-  handleSubmit(item) {
-    this.props.addTransaction(item)
-    this.setState({ modal: false });
+  handleSubmit = (item, type) => {
+    console.log("in handlesubmit, item is", item)
+    this.props.addTransaction(item, type)
+    this.setState({ modal: false, type: '' });
 
   }
 
-  createItem () {
+  createItem = () => {
     console.log("in createItem")
     this.state.activeItem = newItem;
-    this.setState({ modal: true });
+    this.setState({ modal: true , type: 'add' });
   }
 
   editItem = (cell, row, rowIndex) => {
+    console.log("in editItem row. row is ", row)
     this.state.activeItem = row;
-    this.setState({ modal: true });
+    this.setState({ modal: true, type: 'edit' });
   }
 
   deleteItem = (cell, row, rowIndex) => {
     this.props.deleteTransaction(row.id)
+  }
+
+  deleteItems = () => {
+    console.log("in this.deleteItems")
+    this.state.selected.map((row_id) => {console.log("ready to delete ", row_id);this.props.deleteTransaction(row_id)})
   }
 
   actionsFormatter = (cell, row, enumObject, rowIndex) => {
@@ -82,7 +111,41 @@ export class Transactions extends Component {
             <TiDelete type="button" color="Red" onClick={() => this.deleteItem(cell, row, rowIndex)} />
         </div>
     );
-}
+  }
+
+  handleOnSelect = (row, isSelect) => {
+    if (isSelect) {
+      this.setState(() => ({
+        selected: [...this.state.selected, row.id]
+      }));
+    } else {
+      this.setState(() => ({
+        selected: this.state.selected.filter(x => x !== row.id)
+      }));
+    }
+  }
+
+  handleOnSelectAll = (isSelect, rows) => {
+    const ids = rows.map(r => r.id);
+    if (isSelect) {
+      this.setState(() => ({
+        selected: ids
+      }));
+    } else {
+      this.setState(() => ({
+        selected: []
+      }));
+    }
+  }
+
+  handleConfirm = () => {
+    this.deleteItems()
+    this.setState({ showDialog: false })
+  }
+  handleCancel = () => {
+    console.log("in handlecancel")
+    this.setState({ showDialog: false })
+  }
 
   render() { 
 
@@ -173,40 +236,81 @@ export class Transactions extends Component {
             isDummyField: true,
             csvExport: false,
             formatter: this.actionsFormatter.bind(this),
-            // Cell: (cell) => (
-            //   <div style={{display: 'inline-block'}}>
-            //     <button onClick={() => {
-                  
-            //     }}>Edit</button>
-            //     <button onClick={() => {
-                  
-            //     }}>Delete</button>
-            //   </div>
-            // )
           },
         ]
-
+      
+      const selectRow = {
+        mode: 'checkbox',
+        clickToSelect: false,
+        style: { backgroundColor: '#c8e6c9' },
+        onSelect: this.handleOnSelect,
+        onSelectAll: this.handleOnSelectAll
+      };
 
     return (
       <Fragment> 
-        <div><Button onClick={() => this.createItem()}>Add</Button></div>
-        <div>
+        <div id="modal">
           {this.state.modal ? 
           (<AddTransactionModal
             activeItem={this.state.activeItem}
             toggle={this.toggle}
             onSave={this.handleSubmit}
+            type={this.state.type}
           />) : (null)}
         </div>
-          <h2> transactions </h2>
-          <BootstrapTable 
-            keyField='id' 
+        <div id="dialog">
+        {
+            this.state.showDialog ? 
+            (<Confirm
+            open={this.state.showDialog}
+            content="确定要删除选定的记录吗?"
+            onCancel={this.handleCancel}
+            onConfirm={this.handleConfirm}
+            />) : (null)}
+        </div>
+          <ToolkitProvider
+            keyField="id"
             data={ this.props.transactions } 
             columns={ columns } 
-            filter={ filterFactory() } 
-            hover
-            noDataIndication="0条记录"
-            />
+            search
+            columnToggle
+            exportCSV
+          >
+             {
+              props => (
+                <div>
+                  <div class="row">
+                    <div class="col-md-4">
+                    <ExportCSVButton { ...props.csvProps } className="text-light btn bg-success rounded control_btn">导出</ExportCSVButton>
+                    <Button onClick={() => this.createItem()} style={{backgroundColor: "Purple"}} className="btn text-light rounded control_btn">添加</Button>
+                    <Button id="deleteMultipleBtn" onClick={() => this.setState({showDialog: true})} style={{backgroundColor: "Orange"}} className="btn text-light rounded control_btn" disabled={this.state.selected.length===0}>删除</Button>
+                    </div>
+                    <div class="col-md-6" style={{display: "inline-flex"}}>
+                      <SearchBar { ...props.searchProps }  
+                        placeholder="请输入关键字..."
+                        style={{ height: "40px"}} />
+                      <ClearSearchButton { ...props.searchProps } 
+                        text="清除" 
+                        style={{
+                        height: "40px", 
+                      }}/>
+                    </div>
+                  </div>
+                  <hr />
+                  <ToggleList { ...props.columnToggleProps } />
+                  <hr />
+                  <BootstrapTable
+                    { ...props.baseProps }
+                    filter={ filterFactory() } 
+                    hover
+                    condensed
+                    noDataIndication="0条记录"
+                    selectRow={ selectRow }
+                  />
+                </div>
+              )
+            }
+          </ToolkitProvider>
         </Fragment>
     );
   }

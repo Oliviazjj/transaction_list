@@ -19,18 +19,22 @@ export const deleteTransaction = (id) => dispatch => {
     .then(res => {
       dispatch({
         type: DELETE_TRANSACTION,
-        payload: res.data
+        payload: res.data,
+        id: id
       });
     }).catch(err => console.log(err));
 }
 
 // ADD TRANSACTIONS
-export const addTransaction = (transaction) => dispatch => {
+export const addTransaction = (transaction, actionType) => dispatch => {
+  console.log("before addTRans, trans is ", transaction)
   axios.post(API_URL, transaction)
     .then(res => {
+      console.log("in addtran action, payload is ", res.data)
       dispatch({
         type: ADD_TRANSACTION,
-        payload: res.data
+        payload: res.data,
+        actionType: actionType
       });
     }).catch(err => console.log(err));
 }

@@ -36,3 +36,15 @@ code {
 .column-toggle-container {
 	display: inline-flex;
 }
+
+.row {
+  border-bottom: 0px;
+}
+
+.hr {
+  border-bottom: 0px;
+}
+
+.control_btn {
+  margin-right: 10px;
+}
