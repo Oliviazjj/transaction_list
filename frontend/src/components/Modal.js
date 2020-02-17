@@ -75,6 +75,16 @@ export default class AddTransactionModal extends Component {
               />
             </FormGroup>
             <FormGroup>
+              <Label for="project">项目</Label>
+              <Input
+                type="text"
+                name="project"
+                value={this.state.activeItem.project}
+                onChange={this.handleChange}
+                placeholder="输入项目"
+              />
+            </FormGroup>
+            <FormGroup>
               <Label for="unit_price">单价</Label>
               <Input
                 type="number"

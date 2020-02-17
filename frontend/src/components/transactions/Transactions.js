@@ -19,6 +19,7 @@ const newItem = {
   item_id: "",
   name: "",
   brand: "",
+  project: "",
   unit_price: 0,
   total_price: 0,
   quantity: 0,
@@ -108,7 +109,7 @@ export class Transactions extends Component {
     return (
         <div>
             <TiEdit type="button" color="Green" onClick={() => this.editItem(cell, row, rowIndex)} />
-            <TiDelete type="button" color="Red" onClick={() => this.deleteItem(cell, row, rowIndex)} />
+            <TiDelete type="button" style={{marginLeft: "20px"}} color="Red" onClick={() => this.deleteItem(cell, row, rowIndex)} />
         </div>
     );
   }
@@ -171,6 +172,12 @@ export class Transactions extends Component {
           {
             text: '品牌',
             dataField: 'brand',
+            filter: textFilter(),
+            sort: true
+          },{
+            text: '项目',
+            dataField: 'project',
+            filter: textFilter(),
             sort: true
           },{
             text: '单价',
@@ -209,10 +216,12 @@ export class Transactions extends Component {
           },{
             text: '供应商',
             dataField: 'vendor',
+            filter: textFilter(),
             sort: true
           },{
             text: '经手人',
             dataField: 'agent',
+            filter: textFilter(),
             sort: true
           },{
             text: '有无发票',
@@ -266,6 +275,7 @@ export class Transactions extends Component {
             content="确定要删除选定的记录吗?"
             onCancel={this.handleCancel}
             onConfirm={this.handleConfirm}
+            size='small'
             />) : (null)}
         </div>
           <ToolkitProvider
